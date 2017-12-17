@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title>Hello, world!</title>
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.0/jquery.min.js"></script>
+</head>
+
+<style>
+#canvas {
+
+}
+#videoInput {
+
+}
+a {
+  position: absolute;
+  left 50%;
+}
+</style>
+
+<body>
+
+
+
+<video id = "videoInput"></video>
+<canvas id = "canvas"></canvas>
+<img id="processed"></img>
+
+<script src = "webcam.js"></script>
+
+  <script>
+  let tired = false;
+  var audio = new Audio('alarm.mp3');
+
+  function getBase64Image(img) {
+    // Create an empty canvas element
+    var canvas = document.getElementById("canvas");
+    canvas.width = img.videoWidth/4;
+    canvas.height = img.videoHeight/4;
+
+    // Copy the image contents to the canvas
+    var ctx = canvas.getContext("2d");
+    ctx.drawImage(img, 0, 0, img.videoWidth, img.videoHeight, 0, 0, canvas.width, canvas.height);
+
+    // Get the data-URL formatted image
+    // Firefox supports PNG and JPEG. You could check img.src to
+    // guess the original format, but be aware the using "image/jpg"
+    // will re-encode the image.1
+    var dataURL = canvas.toDataURL("image/png");
+
+    return dataURL.replace(/^data:image\/(png|jpg);base64,/, "");
+}
+
+var image;
+
+// video.addEventListener('timeupdate', updateFrame, false);
+setInterval(updateFrame, 100);
+
+function updateFrame() {
+
+image = document.getElementById('videoInput');
+
+  var photo = getBase64Image(image);
+
+  fetch( 'http://localhost:8080/api/upload', {
+
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json'
+        },
+        method: "POST",
+        body: JSON.stringify({
+          photo: photo
+        })
+ })
+.then((response) => response.json())
+.then((responseJson) => {
+  //document.getElementById("processed").src = "frame.jpg";
+})
+.catch((error) => {
+    console.log(error)
+    postSubmit(["Oops, something Went Wrong."]);
+});
+
+fetch( 'http://localhost:8080/getStatus', {
+
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json'
+      },
+      method: "POST",
+      body: JSON.stringify({
+        asdf: "asdf"
+      })
+})
+.then((response) => response.json())
+.then((responseJson) => {
+  tired = responseJson.status;
+})
+.catch((error) => {
+  console.log(error)
+  postSubmit(["Oops, something Went Wrong."]);
+});
+
+if (tired === true) {
+audio.play();
+} else {
+  audio.pause();
+audio.currentTime = 0;
+}
+
+}
+
+</script>
+
+
+
+</body>
+</html>
