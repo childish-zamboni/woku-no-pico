@@ -21,7 +21,7 @@ let previousTime = Date.now();
 
 let tired = false;
 
-var COLOR = [0, 255, 0];
+let COLOR = [0, 255, 0];
 
 setInterval(update, 100);
 
@@ -49,22 +49,18 @@ cv.readImage('./frame/frame.jpg', function(err, im) {
         console.log("blink!");
         console.log(time - previousTime);
         previousTime = time;
-        if (time - previousTime < 1000) {
+        if (time - previousTime < 1500) {
           tired = true;
         } else {
           tired = false;
         }
       }
     }
-
     previousFoundEyes = foundEyes;
 
     im.save('./processed/processed.jpg');
   });
-
 });
-
-
 }
 
 app.post("/getStatus", function (req, res) {
